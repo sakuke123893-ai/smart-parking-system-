@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParkSmart — Intelligent Parking System · Hyderabad</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--bg2:#0e1220;--bg3:#141a2e;
+  --accent:#6c63ff;--accent2:#a78bfa;--teal:#00d4b8;--amber:#f59e0b;
+  --red:#ef4444;--green:#22c55e;
+  --text:#f0f4ff;--muted:#8892a4;--border:rgba(108,99,255,0.18);
+  --glass:rgba(14,18,32,0.85);
+}
+html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+body{background:var(--bg);color:var(--text)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes drift{0%{transform:translateY(0) translateX(0)}33%{transform:translateY(-15px) translateX(8px)}66%{transform:translateY(5px) translateX(-5px)}100%{transform:translateY(0) translateX(0)}}
+@keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.7}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(108,99,255,0.3)}50%{box-shadow:0 0 40px rgba(108,99,255,0.6)}}
+.page{animation:fadeUp 0.35s ease}
+.spin-anim{animation:spin 0.7s linear infinite;display:inline-block}
+.pop{animation:pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+/* BG */
+#cbg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hgrid{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'%3E%3Cpolygon points='30,2 57,17 57,47 30,62 3,47 3,17' fill='none' stroke='rgba(108,99,255,0.07)' stroke-width='1'/%3E%3C/svg%3E");background-size:60px 52px}
+.nbl{position:absolute;border-radius:50%;filter:blur(80px)}
+.str{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) var(--dl,0s) ease-in-out infinite}
+/* CORE UI */
+.card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:20px;backdrop-filter:blur(16px)}
+.cg{border-color:rgba(108,99,255,0.4)!important;box-shadow:0 0 24px rgba(108,99,255,0.1)}
+.btn{padding:10px 20px;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;border:1px solid transparent;letter-spacing:.5px}
+.bp{background:linear-gradient(135deg,#6c63ff,#a78bfa);color:#fff;border-color:#6c63ff;box-shadow:0 4px 20px rgba(108,99,255,.3)}
+.bp:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(108,99,255,.5)}
+.bg{background:rgba(108,99,255,.08);color:var(--accent2);border-color:rgba(108,99,255,.25)}
+.bg:hover{background:rgba(108,99,255,.18)}
+.bd{background:rgba(239,68,68,.1);color:#ef4444;border-color:rgba(239,68,68,.3)}
+.bd:hover{background:rgba(239,68,68,.2)}
+.bgreen{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border-color:#22c55e;box-shadow:0 4px 16px rgba(34,197,94,.25)}
+.bgreen:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,197,94,.4)}
+.bteal{background:rgba(0,212,184,.1);color:var(--teal);border-color:rgba(0,212,184,.3)}
+.bteal:hover{background:rgba(0,212,184,.2)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+/* FORMS */
+.f{margin-bottom:16px}
+.f label{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.f input,.f select{width:100%;background:rgba(14,18,32,.9);border:1px solid rgba(108,99,255,.2);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.f input:focus,.f select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.12)}
+.f select option{background:#1a2240}
+.emsg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;color:#ef4444;font-size:13px;margin-bottom:14px}
+/* LAYOUT */
+#app{position:relative;z-index:1;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:rgba(7,9,15,.97);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;flex-shrink:0;position:sticky;top:0;height:100vh}
+.main{flex:1;overflow-y:auto;padding:28px}
+.lwrap{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border)}
+.lic{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6c63ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;animation:glow 3s ease-in-out infinite}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:var(--muted);border:1px solid transparent}
+.ni:hover{background:rgba(108,99,255,.08);color:var(--text)}
+.ni.act{background:rgba(108,99,255,.14);color:var(--accent2);border-color:rgba(108,99,255,.25)}
+.nb{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px}
+.uc{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(108,99,255,.06);border:1px solid var(--border)}
+.av{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.sc{padding:20px;position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--c1,rgba(108,99,255,.06)),transparent);pointer-events:none;border-radius:16px}
+/* SLOTS */
+.sl{width:52px;height:42px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.sl.av{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#22c55e}
+.sl.av:hover{background:rgba(34,197,94,.22);border-color:#22c55e;transform:scale(1.08)}
+.sl.occ{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.2);color:#ef4444;cursor:not-allowed}
+.sl.mine{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.4);color:var(--amber);animation:pulse 2s ease-in-out infinite}
+.sl.sel{background:rgba(108,99,255,.18);border-color:var(--accent);color:var(--accent2);transform:scale(1.1);box-shadow:0 0 16px rgba(108,99,255,.3)}
+/* TICKET */
+.tk{background:linear-gradient(145deg,#0e1220,#141a2e);border:1px solid rgba(108,99,255,.3);border-radius:20px;overflow:hidden;max-width:460px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px rgba(108,99,255,.1)}
+.tkh{background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(167,139,250,.08));border-bottom:2px dashed rgba(108,99,255,.2);padding:20px 24px;display:flex;justify-content:space-between;align-items:center}
+.tkb{padding:20px 24px}
+.tkr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px}
+.tklb{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;align-self:center}
+.tkv{font-weight:600;color:var(--text)}
+.tkp{border-top:2px dashed rgba(108,99,255,.15);margin:0 24px;display:flex;justify-content:center;gap:6px;padding:14px 0}
+.pd{width:6px;height:6px;border-radius:50%;background:rgba(108,99,255,.2)}
+.qrw{background:#fff;border-radius:12px;padding:8px;display:inline-flex}
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.mb{background:linear-gradient(145deg,#0e1220,#141a2e);border:1px solid var(--border);border-radius:20px;overflow:hidden;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+/* STEPS */
+.steps{display:flex;align-items:center;margin-bottom:32px}
+.si{display:flex;align-items:center;gap:8px;flex:1}
+.si:last-child{flex:0}
+.sn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all .3s;flex-shrink:0}
+.sn.dn{background:#22c55e;color:#fff}
+.sn.ac{background:var(--accent);color:#fff;box-shadow:0 0 16px rgba(108,99,255,.5)}
+.sn.pe{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);color:var(--muted)}
+.sl2{flex:1;height:2px;margin:0 12px;border-radius:1px;transition:all .3s}
+/* PAY TABS */
+.pt{flex:1;padding:10px;border-radius:10px;cursor:pointer;background:rgba(108,99,255,.04);border:1px solid rgba(108,99,255,.12);color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;transition:all .2s;text-align:center}
+.pt.act{background:rgba(108,99,255,.14);border-color:rgba(108,99,255,.4);color:var(--accent2)}
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.bg2{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.25)}
+.br{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
+.bpu{background:rgba(108,99,255,.1);color:var(--accent2);border:1px solid rgba(108,99,255,.25)}
+.bt2{background:rgba(0,212,184,.1);color:var(--teal);border:1px solid rgba(0,212,184,.25)}
+.clk{font-family:'DM Mono',monospace;font-size:22px;color:var(--teal);font-weight:500}
+.avlg{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;flex-shrink:0}
+.dbt{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .2s;border:1px solid transparent;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif}
+.dbt.act{background:rgba(108,99,255,.14);border-color:rgba(108,99,255,.3);color:var(--accent2)}
+.dbtbl{width:100%;border-collapse:collapse}
+.dbtbl th{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.dbtbl td{padding:9px 12px;border-bottom:1px solid rgba(108,99,255,.06);font-size:12px}
+.dbtbl tr:hover td{background:rgba(108,99,255,.04)}
+.lcc{cursor:pointer;transition:all .2s}.lcc:hover{transform:translateY(-2px);border-color:rgba(108,99,255,.35)}
+.ecc{cursor:pointer;transition:all .2s}.ecc:hover{transform:translateY(-2px)}
+@media print{#cbg,#sidebar{display:none!important}.tk{box-shadow:none!important}}
+@media(max-width:768px){.sidebar{display:none}.sg{grid-template-columns:1fr 1fr}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div id="cbg">
+  <div class="hgrid"></div>
+  <div class="nbl" style="width:500px;height:500px;background:radial-gradient(circle,rgba(108,99,255,.06) 0%,transparent 70%);top:-100px;left:-100px;animation:drift 18s ease-in-out infinite"></div>
+  <div class="nbl" style="width:400px;height:400px;background:radial-gradient(circle,rgba(0,212,184,.05) 0%,transparent 70%);bottom:-80px;right:-60px;animation:drift 22s ease-in-out infinite reverse"></div>
+  <div class="nbl" style="width:300px;height:300px;background:radial-gradient(circle,rgba(167,139,250,.04) 0%,transparent 70%);top:40%;left:60%;animation:drift 15s ease-in-out infinite 5s"></div>
+</div>
+<div id="app"></div>
+<script>
+// STARS
+(function(){const bg=document.getElementById('cbg');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='str';const z=Math.random()<.7?1:Math.random()<.8?2:3;s.style.cssText='width:'+z+'px;height:'+z+'px;top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;--d:'+(2+Math.random()*5)+'s;--dl:'+Math.random()*6+'s';bg.appendChild(s);}})();
+// PARKING CANVAS BG
+(function(){const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;z-index:0;opacity:0.05;pointer-events:none';document.getElementById('cbg').appendChild(c);function draw(){c.width=window.innerWidth;c.height=window.innerHeight;const ctx=c.getContext('2d');ctx.strokeStyle='rgba(108,99,255,1)';ctx.lineWidth=1.2;const sw=90,sh=50;for(let x=0;x<c.width;x+=sw+10)for(let y=0;y<c.height;y+=sh+14){ctx.strokeRect(x,y,sw,sh);ctx.beginPath();ctx.moveTo(x+sw/2,y);ctx.lineTo(x+sw/2,y+sh);ctx.stroke();if(Math.random()>.6){ctx.strokeStyle='rgba(34,197,94,1)';ctx.strokeRect(x+4,y+4,sw-8,sh-8);ctx.strokeStyle='rgba(108,99,255,1)';}}}draw();window.addEventListener('resize',draw);})();
+
+// DATABASE
+const LOCS=[
+  {id:'l1',name:'Hitech City',area:'Cyberabad',emoji:'🏢',busy:'Extreme',ap:.20,rate:60,col:'#6c63ff'},
+  {id:'l2',name:'Banjara Hills',area:'Banjara Hills',emoji:'🌆',busy:'High',ap:.45,rate:50,col:'#a78bfa'},
+  {id:'l3',name:'Charminar',area:'Old City',emoji:'🕌',busy:'Very High',ap:.35,rate:40,col:'#f59e0b'},
+  {id:'l4',name:'Madhapur',area:'Madhapur',emoji:'💻',busy:'Very High',ap:.25,rate:55,col:'#00d4b8'},
+  {id:'l5',name:'Jubilee Hills',area:'Jubilee Hills',emoji:'🎬',busy:'High',ap:.40,rate:50,col:'#ec4899'},
+  {id:'l6',name:'Gachibowli Stadium',area:'Gachibowli',emoji:'🏟️',busy:'Event',ap:.15,rate:45,col:'#ef4444'},
+  {id:'l7',name:'Ameerpet',area:'Ameerpet',emoji:'🎓',busy:'Very High',ap:.28,rate:35,col:'#a78bfa'},
+  {id:'l8',name:'Necklace Road',area:'Hussain Sagar',emoji:'🌊',busy:'Weekend',ap:.50,rate:35,col:'#22c55e'},
+];
+const EVS=[
+  {id:'e1',title:'AR Rahman Live',venue:'HITEX Centre',area:'Hitech City',cat:'concert',emoji:'🎵',date:'2026-03-09',time:'06:30 PM',price:1500,orig:2000,rating:4.9,total:5000,booked:4200,col:'#a78bfa'},
+  {id:'e2',title:'IPL: SRH vs MI',venue:'Rajiv Gandhi Stadium',area:'Gachibowli',cat:'sports',emoji:'🏏',date:'2026-03-12',time:'07:30 PM',price:800,orig:1000,rating:5.0,total:55000,booked:48000,col:'#ef4444'},
+  {id:'e3',title:'Pushpa 3 Premiere',venue:'Asian Cinemas KPHB',area:'Kukatpally',cat:'movie',emoji:'🎬',date:'2026-03-15',time:'11:59 PM',price:250,orig:300,rating:4.7,total:350,booked:347,col:'#f59e0b'},
+  {id:'e4',title:'Biryani & Beyond Fest',venue:'Necklace Road Ground',area:'Hussain Sagar',cat:'food',emoji:'🍛',date:'2026-03-08',time:'05:00 PM',price:200,orig:200,rating:4.6,total:2000,booked:1450,col:'#22c55e'},
+  {id:'e5',title:'Zakir Khan Comedy Night',venue:'Shilpakala Vedika',area:'Madhapur',cat:'comedy',emoji:'😂',date:'2026-03-10',time:'08:00 PM',price:600,orig:700,rating:4.8,total:1200,booked:980,col:'#00d4b8'},
+  {id:'e6',title:'Tech Summit Hyderabad',venue:'HICC Novotel',area:'Madhapur',cat:'tech',emoji:'💻',date:'2026-03-11',time:'09:00 AM',price:999,orig:1500,rating:4.7,total:1000,booked:720,col:'#6c63ff'},
+];
+const IDB={
+  users:[
+    {id:'u1',name:'Alex Morgan',email:'demo@parksmart.com',password:'demo123',vehicle:'TS07AB1234',wallet:500},
+    {id:'u2',name:'Sam Rivera',email:'sam@parksmart.com',password:'sam123',vehicle:'TS09CD5678',wallet:800},
+  ],
+  slots:Array.from({length:40},(_,i)=>{const Z=['A','B','C','D'],F=['G','1','2'],R=[30,40,25,35];const z=Z[Math.floor(i/10)],f=F[Math.floor(i/14)],r=R[Z.indexOf(z)];return{id:'s'+(i+1),number:z+String(i%10+1).padStart(2,'0'),zone:z,floor:f,rate:r,occupied:[2,5,8,11,14,17,20,23,26,29,32].includes(i)};}),
+  bookings:[
+    {id:'BK001',userId:'u1',slotId:'s3',date:'2026-03-01',start:'09:00',end:'11:00',duration:2,amount:60,method:'Card',status:'Completed',createdAt:'2026-03-01T08:55:00'},
+    {id:'BK002',userId:'u1',slotId:'s7',date:'2026-03-03',start:'14:00',end:'16:00',duration:2,amount:80,method:'UPI',status:'Active',createdAt:'2026-03-03T13:50:00'},
+    {id:'BK003',userId:'u2',slotId:'s12',date:'2026-03-04',start:'10:00',end:'13:00',duration:3,amount:75,method:'Wallet',status:'Active',createdAt:'2026-03-04T09:45:00'},
+  ],
+  eventBookings:[],
+};
+function ldb(){try{const s=localStorage.getItem('ps4');if(s)return{...IDB,...JSON.parse(s)};}catch(e){}return JSON.parse(JSON.stringify(IDB));}
+function sdb(db){try{localStorage.setItem('ps4',JSON.stringify({bookings:db.bookings,eventBookings:db.eventBookings,slots:db.slots,users:db.users}));}catch(e){}}
+let DB=ldb(),SES=null,PG='dashboard';
+try{const s=localStorage.getItem('ps4s');if(s)SES=JSON.parse(s);}catch(e){}
+try{PG=localStorage.getItem('ps4p')||'dashboard';}catch(e){}
+
+function sp(p){PG=p;try{localStorage.setItem('ps4p',p);}catch(e){}render();}
+function login(u){SES=u;try{localStorage.setItem('ps4s',JSON.stringify(u));}catch(e){}PG='dashboard';render();}
+function logout(){SES=null;try{localStorage.removeItem('ps4s');localStorage.removeItem('ps4p');}catch(e){}PG='dashboard';render();}
+function dbU(fn){DB=fn(DB);sdb(DB);const f=DB.users.find(u=>u.id===SES?.id);if(f)SES=f;render();}
+
+function qr(data,sz){sz=sz||120;const cl=21,c=sz/cl;const sd=data.split('').reduce((a,x)=>a+x.charCodeAt(0),0);let r='';for(let i=0;i<cl;i++)for(let j=0;j<cl;j++){let v=0;if((i<7&&j<7)||(i<7&&j>=cl-7)||(i>=cl-7&&j<7)){if(i===0||i===6||j===0||j===6)v=1;else if(i>=2&&i<=4&&j>=2&&j<=4)v=1;}else v=((sd*(i+1)*(j+3)+i*7+j*13)%3===0)?1:0;if(v)r+='<rect x="'+(j*c)+'" y="'+(i*c)+'" width="'+c+'" height="'+c+'" fill="#000"/>';}return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'" style="background:#fff;border-radius:4px">'+r+'</svg>';}
+
+function slotGrid(sel,selId,customSlots){
+  const slots=customSlots||DB.slots;
+  const mine=new Set(DB.bookings.filter(b=>b.userId===SES.id&&b.status==='Active').map(b=>b.slotId));
+  const zones=[...new Set(slots.map(s=>s.zone))];
+  let h='<div style="display:flex;flex-direction:column;gap:10px">';
+  for(const z of zones){const zs=slots.filter(s=>s.zone===z);h+='<div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;font-weight:700;margin-bottom:6px">ZONE '+z+' · ₹'+zs[0].rate+'/hr</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
+    for(const sl of zs){let cl=sl.occupied?'occ':'av';if(mine.has(sl.id))cl='mine';if(selId===sl.id)cl='sel';const ok=(cl==='av'||cl==='sel')&&sel;h+='<div class="sl '+cl+'"'+(ok?' onclick="PS.ss(\''+sl.id+'\')" title="Book this slot"':'')+'>'+sl.number+'<span style="font-size:8px;opacity:.6">'+(sl.floor==='G'?'G':'F'+sl.floor)+'</span></div>';}h+='</div></div>';}
+  return h+'</div>';}
+
+function render(){const a=document.getElementById('app');if(!SES){rLogin(a);return;}rShell(a);if(PG==='dashboard'){clearInterval(window._ck);window._ck=setInterval(()=>{const el=document.getElementById('ck');if(el)el.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else clearInterval(window._ck);},1000);}}
+
+function rLogin(a){
+  a.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;z-index:1"><div style="display:flex;gap:72px;align-items:center;max-width:1000px;width:100%">'
+  +'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:14px;margin-bottom:44px">'
+  +'<div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6c63ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 32px rgba(108,99,255,.5);animation:glow 3s ease-in-out infinite">🅿</div>'
+  +'<div><div style="font-size:26px;font-weight:700;letter-spacing:-.5px">ParkSmart</div><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase">Intelligent Parking · Hyderabad</div></div></div>'
+  +'<h1 style="font-size:46px;font-weight:700;line-height:1.15;margin-bottom:18px;letter-spacing:-1.5px">Find. Book.<br><span style="background:linear-gradient(135deg,#6c63ff,#a78bfa,#00d4b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Park Smart.</span></h1>'
+  +'<p style="color:var(--muted);font-size:16px;line-height:1.75;margin-bottom:40px;max-width:420px">Hyderabad\'s next-gen intelligent parking platform. Reserve your slot in seconds, pay securely, and get a QR digital ticket — all from one dashboard.</p>'
+  +[['⚡','Real-Time Availability','Live 40+ slots across Zones A–D'],['🔐','Secure Payments','Card, UPI, or Wallet with instant confirmation'],['🎫','QR Digital Ticket','Scan-at-gate e-ticket after each booking']].map(([i,t,d])=>'<div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:18px"><div style="width:42px;height:42px;border-radius:12px;background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+i+'</div><div><div style="font-size:14px;font-weight:600;margin-bottom:3px">'+t+'</div><div style="font-size:13px;color:var(--muted)">'+d+'</div></div></div>').join('')
+  +'</div>'
+  +'<div style="width:400px;flex-shrink:0"><div class="card cg" style="padding:32px">'
+  +'<div style="display:flex;background:rgba(0,0,0,.3);border-radius:10px;padding:4px;margin-bottom:28px">'
+  +'<button class="btn" id="tl" onclick="PS.stab(\'l\')" style="flex:1;padding:9px;border-radius:7px;font-size:12px;letter-spacing:1px;background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(108,99,255,.08));border:1px solid rgba(108,99,255,.35);color:var(--accent2)">LOGIN</button>'
+  +'<button class="btn" id="tr" onclick="PS.stab(\'r\')" style="flex:1;padding:9px;border-radius:7px;font-size:12px;letter-spacing:1px;background:transparent;border:1px solid transparent;color:var(--muted)">REGISTER</button></div>'
+  +'<div id="ae"></div>'
+  +'<div id="fl"><div class="f"><label>Email</label><input type="email" id="le" placeholder="your@email.com"></div><div class="f"><label>Password</label><input type="password" id="lp" placeholder="••••••••" onkeydown="if(event.key===\'Enter\')PS.login()"></div><button class="btn bp" style="width:100%;padding:13px;font-size:14px" onclick="PS.login()">⚡ LOGIN</button></div>'
+  +'<div id="fr" style="display:none"><div class="f"><label>Full Name</label><input type="text" id="rn" placeholder="Your name"></div><div class="f"><label>Email</label><input type="email" id="re" placeholder="email@example.com"></div><div class="f"><label>Password</label><input type="password" id="rp" placeholder="Min 6 chars"></div><div class="f"><label>Vehicle Number</label><input type="text" id="rv" placeholder="TS07AB1234"></div><button class="btn bp" style="width:100%;padding:13px;font-size:14px" onclick="PS.register()">⊕ Create Account</button></div>'
+  +'</div></div></div></div>';}
+
+function rShell(a){
+  const ub=DB.bookings.filter(b=>b.userId===SES.id),ac=ub.filter(b=>b.status==='Active').length,ini=SES.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+  const nav=[{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'locations',ic:'📍',lb:'Locations'},{id:'events',ic:'🎟',lb:'Events'},{id:'bookings',ic:'📋',lb:'My Bookings',bd:ac||''},{id:'profile',ic:'👤',lb:'Profile'},...(SES.id==='u1'?[{id:'dbviewer',ic:'🗄',lb:'DB Viewer'}]:[])];
+  a.innerHTML='<div class="layout"><div class="sidebar" id="sidebar"><div class="lwrap"><div class="lic">🅿</div><div><div style="font-size:16px;font-weight:700;letter-spacing:-.5px">ParkSmart</div><div style="font-size:10px;color:var(--muted);letter-spacing:1px">HYD SMART PARKING</div></div></div>'
+  +'<nav style="flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px">'+nav.map(n=>'<div class="ni'+(PG===n.id?' act':'')+'" onclick="sp(\''+n.id+'\')"><span style="font-size:16px;width:20px;text-align:center">'+n.ic+'</span><span>'+n.lb+'</span>'+(n.bd?'<span class="nb">'+n.bd+'</span>':'')+'</div>').join('')+'</nav>'
+  +'<div style="padding:16px 20px;border-top:1px solid var(--border)"><div class="uc"><div class="av">'+ini+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+SES.name+'</div><div style="font-size:11px;color:var(--amber);font-family:\'DM Mono\',monospace">₹'+SES.wallet+' wallet</div></div></div>'
+  +'<button class="btn bg" style="width:100%;margin-top:10px;font-size:12px" onclick="logout()">⎋ Logout</button></div></div>'
+  +'<div class="main" id="ma">'+rPage()+'</div></div>';}
+
+function rPage(){if(PG==='dashboard')return pgDash();if(PG==='locations')return pgLoc();if(PG==='book')return pgBook();if(PG==='events')return pgEv();if(PG==='bookings')return pgBks();if(PG==='profile')return pgProf();if(PG==='dbviewer'&&SES.id==='u1')return pgDB();return pgDash();}
+// Generate unique per-location slots (not stored in DB — display only, booked into DB on confirm)
+function locSlots(loc){
+  const seed=loc.id.charCodeAt(1)||1;
+  const zones=['P','Q','R','S'],floors=['G','1','2'];
+  return Array.from({length:20},(_,i)=>{
+    const z=zones[Math.floor(i/5)],fl=floors[Math.floor(i/7)];
+    const occ=[1,3,6,9,12,15,17].includes(i);
+    return{id:'ls_'+loc.id+'_'+i,number:z+String(i%5+1).padStart(2,'0'),zone:z,floor:fl,rate:loc.rate,occupied:occ,locId:loc.id,locName:loc.name};
+  });
+}
+
+// DASHBOARD
+function pgDash(){
+  const ub=DB.bookings.filter(b=>b.userId===SES.id),now=new Date();
+  return '<div class="page"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px"><div><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Welcome Back</div><h1 style="font-size:28px;font-weight:700;letter-spacing:-.5px">'+SES.name+'</h1><div style="font-size:13px;color:var(--muted);margin-top:4px">'+now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</div></div>'
+  +'<div style="text-align:right"><div class="clk" id="ck">'+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div style="font-size:12px;color:var(--muted);margin-top:4px">IST · Hyderabad</div></div></div>'
+  +'<div class="sg">'+[{lb:'Total Bookings',v:ub.length,col:'#6c63ff',ic:'📋',c1:'rgba(108,99,255,.08)'},{lb:'Active Slots',v:ub.filter(b=>b.status==='Active').length,col:'#22c55e',ic:'✅',c1:'rgba(34,197,94,.06)'},{lb:'Amount Spent',v:'₹'+ub.reduce((s,b)=>s+b.amount,0),col:'#f59e0b',ic:'💰',c1:'rgba(245,158,11,.06)'},{lb:'Slots Available',v:DB.slots.filter(s=>!s.occupied).length,col:'#00d4b8',ic:'🅿',c1:'rgba(0,212,184,.06)'}].map(s=>'<div class="card sc" style="--c1:'+s.c1+'"><div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase">'+s.lb+'</div><div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:500;margin-top:8px;color:'+s.col+'">'+s.v+'</div><div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.12">'+s.ic+'</div></div>').join('')+'</div>'
+  +'<div style="display:grid;grid-template-columns:1fr 320px;gap:20px"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><div style="font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Parking Overview</div><div style="display:flex;gap:14px;font-size:11px;color:var(--muted)"><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:3px;background:rgba(34,197,94,.3);border:1px solid #22c55e;display:inline-block"></span>Available</span><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:3px;background:rgba(239,68,68,.3);border:1px solid #ef4444;display:inline-block"></span>Occupied</span><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:3px;background:rgba(245,158,11,.3);border:1px solid #f59e0b;display:inline-block"></span>Yours</span></div></div>'+slotGrid(false,null)+'</div>'
+  +'<div class="card"><div style="font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:18px">Recent Activity</div>'
+  +(ub.length===0?'<div style="text-align:center;color:var(--muted);padding:32px 0">No bookings yet</div>'
+  :ub.slice(-4).reverse().map(b=>{const sl=DB.slots.find(s=>s.id===b.slotId);const sNum=sl?.number||b.slotNum||'?';const sZone=sl?.zone||b.slotZone||'?';const sc=b.status==='Active'?'bg2':b.status==='Cancelled'?'br':'bpu';
+    return '<div style="padding:12px 0;border-bottom:1px solid rgba(108,99,255,.08)"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:700;color:var(--accent2);font-family:\'DM Mono\',monospace">#'+b.id+'</span><span class="bdg '+sc+'">'+b.status+'</span></div>'+(b.location?'<div style="font-size:12px;color:var(--teal);font-weight:600;margin-bottom:2px">📍 '+b.location+'</div>':'')+'<div style="font-size:13px">Slot '+sNum+' · Zone '+sZone+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+b.date+' · '+b.start+'–'+b.end+' · <span style="color:var(--amber)">₹'+b.amount+'</span></div></div>';}).join(''))
+  +'<button class="btn bp" style="width:100%;margin-top:14px;padding:11px;font-size:13px" onclick="sp(\'book\')">⊕ Book New Slot</button></div></div></div>';}
+
+// LOCATIONS
+function pgLoc(){
+  return '<div class="page"><div style="margin-bottom:24px"><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Hyderabad</div><h2 style="font-size:24px;font-weight:700;letter-spacing:-.5px">Parking Locations</h2></div>'
+  +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">'
+  +LOCS.map(l=>{const av=Math.round(l.ap*40),p=Math.round(l.ap*100),bc=l.busy==='Extreme'?'#ef4444':l.busy==='Very High'?'#f59e0b':l.busy==='High'?'#a78bfa':'#22c55e';
+    return '<div class="card lcc" onclick="PS.bLoc(\''+l.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:10px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;background:'+l.col+'18;border:1px solid '+l.col+'30;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'+l.emoji+'</div><div><div style="font-size:14px;font-weight:700">'+l.name+'</div><div style="font-size:11px;color:var(--muted)">'+l.area+'</div></div></div><span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:'+bc+'18;color:'+bc+';border:1px solid '+bc+'30">'+l.busy+'</span></div>'
+    +'<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--muted)">Availability</span><span style="color:'+(p>40?'#22c55e':p>20?'#f59e0b':'#ef4444')+';font-weight:700">'+av+'/40 slots</span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.06)"><div style="height:100%;width:'+p+'%;border-radius:3px;background:linear-gradient(90deg,'+l.col+','+l.col+'88)"></div></div></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--amber);font-weight:700;font-family:\'DM Mono\',monospace">₹'+l.rate+'/hr</span><button class="btn bg" style="padding:7px 14px;font-size:12px">Book Here →</button></div></div>';}).join('')+'</div></div>';}
+
+// BOOKING — location-aware
+let _bs=1,_bsl=null,_bf={date:new Date().toISOString().split('T')[0],st:'10:00',dur:2,veh:''},_bpy='Card',_bdone=null,_bloc=null,_blocSlots=[];
+function pgBook(){
+  if(!_bf.veh&&SES)_bf.veh=SES.vehicle;
+  if(!_bloc){sp('locations');return '';}
+  if(_bdone)return tkPage(_bdone);
+  // build location slots once
+  if(!_blocSlots.length)_blocSlots=locSlots(_bloc);
+  const loc=_bloc;
+  const bc=loc.busy==='Extreme'?'#ef4444':loc.busy==='Very High'?'#f59e0b':loc.busy==='High'?'#a78bfa':'#22c55e';
+  return '<div class="page">'
+  +'<button class="btn bg" style="margin-bottom:20px;font-size:12px" onclick="PS.bkCancel()">← Back to Locations</button>'
+  +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding:16px 20px;background:rgba(14,18,32,.7);border:1px solid '+loc.col+'30;border-radius:14px">'
+  +'<div style="width:44px;height:44px;border-radius:12px;background:'+loc.col+'18;border:1px solid '+loc.col+'30;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+loc.emoji+'</div>'
+  +'<div><div style="font-size:16px;font-weight:700">'+loc.name+'</div><div style="font-size:12px;color:var(--muted)">'+loc.area+' &nbsp;·&nbsp; <span style="color:var(--amber);font-family:\'DM Mono\',monospace;font-weight:700">₹'+loc.rate+'/hr</span> &nbsp;·&nbsp; <span style="color:'+bc+'">'+loc.busy+' traffic</span></div></div></div>'
+  +stpInd(_bs,['Select Slot','Choose Time','Review & Pay'])
+  +'<div id="bb">'+bkSt()+'</div></div>';}
+function stpInd(s,ls){return '<div class="steps">'+ls.map((l,i)=>{const n=i+1,d=s>n,ac=s===n,cl=d?'dn':ac?'ac':'pe';return '<div class="si"><div class="sn '+cl+'">'+(d?'✓':n)+'</div><span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+(ac?'var(--accent2)':'var(--muted)')+'">'+l+'</span>'+(i<ls.length-1?'<div class="sl2" style="background:'+(d?'#22c55e':'rgba(108,99,255,.15)')+'"></div>':'')+'</div>';}).join('')+'</div>';}
+function bkSt(){return _bs===1?bkS1():_bs===2?bkS2():bkS3();}
+function bkS1(){
+  return '<div style="display:grid;grid-template-columns:1fr 300px;gap:20px"><div class="card"><div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">'+(_bloc?.name||'')+' Parking Map — Click to Select</div><div id="sga">'+slotGrid(true,_bsl?.id,_blocSlots)+'</div></div>'
+  +'<div><div class="card cg" id="sdt">'+sdHTML(_bsl)+'</div>'
+  +'<div class="card" style="margin-top:12px;padding:16px"><div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Legend</div>'
+  +[['#22c55e','Available'],['#ef4444','Occupied'],['#f59e0b','Your Active Slot'],['#6c63ff','Selected']].map(([c,l])=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:'+c+'30;border:1.5px solid '+c+';display:inline-block"></span><span style="color:var(--muted)">'+l+'</span></div>').join('')+'</div></div></div>';}
+function sdHTML(sl){
+  if(!sl)return '<div style="text-align:center;padding:32px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:12px;opacity:.2">🅿</div><div style="font-size:13px;letter-spacing:1px;text-transform:uppercase">Select a slot from map</div></div>';
+  return '<div><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Slot Details</div>'+[['Location',_bloc?.name||''],['Slot Number',sl.number],['Zone','Zone '+sl.zone],['Floor',sl.floor==='G'?'Ground':'Floor '+sl.floor],['Rate','₹'+sl.rate+'/hr'],['Status','Available']].map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(108,99,255,.08);font-size:13px"><span style="color:var(--muted)">'+k+'</span><span style="color:'+(v==='Available'?'#22c55e':'var(--text)')+';font-weight:600">'+v+'</span></div>').join('')+'<button class="btn bp" onclick="PS.bkN()" style="width:100%;margin-top:20px;padding:12px"'+(sl?'':' disabled')+'>Continue →</button></div>';}
+function bkS2(){
+  const hrs=Array.from({length:13},(_,i)=>String(i+8).padStart(2,'0')+':00'),cost=(_bsl?.rate||0)*_bf.dur,eh=parseInt(_bf.st)+_bf.dur,et=String(eh).padStart(2,'0')+':00';
+  return '<div style="display:grid;grid-template-columns:1fr 280px;gap:20px"><div class="card"><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">Booking Details</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+  +'<div class="f"><label>Vehicle Number</label><input type="text" id="bv" value="'+_bf.veh+'"></div>'
+  +'<div class="f"><label>Date</label><input type="date" id="bd" value="'+_bf.date+'"></div>'
+  +'<div class="f"><label>Start Time</label><select id="bst">'+hrs.map(h=>'<option value="'+h+'"'+(_bf.st===h?' selected':'')+'>'+h+'</option>').join('')+'</select></div>'
+  +'<div class="f"><label>Duration</label><select id="bdu">'+[1,2,3,4,6,8,12].map(d=>'<option value="'+d+'"'+(_bf.dur===d?' selected':'')+'>'+d+'h (₹'+(_bsl?.rate||0)*d+')</option>').join('')+'</select></div></div>'
+  +'<div style="display:flex;gap:10px;margin-top:10px"><button class="btn bg" onclick="PS.bkB()">← Back</button><button class="btn bp" style="flex:1;padding:12px" onclick="PS.bkN2()">Continue →</button></div></div>'
+  +'<div class="card cg"><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Summary</div>'+[['Location',_bloc?.name||''],['Slot',_bsl?.number],['Zone','Zone '+_bsl?.zone],['Floor',_bsl?.floor==='G'?'Ground':'Floor '+_bsl?.floor],['Date',_bf.date],['Start',_bf.st],['End',et],['Duration',_bf.dur+'h'],['Rate','₹'+_bsl?.rate+'/hr']].map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px"><span style="color:var(--muted)">'+k+'</span><span style="font-weight:600">'+v+'</span></div>').join('')
+  +'<div style="display:flex;justify-content:space-between;padding-top:14px"><span style="font-size:13px;color:var(--muted)">Total</span><span style="font-family:\'DM Mono\',monospace;color:var(--amber);font-weight:700;font-size:18px">₹'+cost+'</span></div></div></div>';}
+function bkS3(){
+  const cost=(_bsl?.rate||0)*_bf.dur,gst=Math.round(cost*.18),total=cost+gst,eh=parseInt(_bf.st)+_bf.dur,et=String(eh).padStart(2,'0')+':00';
+  return '<div style="display:grid;grid-template-columns:1fr 280px;gap:20px"><div><div class="card" style="margin-bottom:14px"><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Order Summary</div>'
+  +[['Location',_bloc?.name||''],['Slot',_bsl?.number+' · Zone '+_bsl?.zone],['Vehicle',_bf.veh],['Date',_bf.date],['Time',_bf.st+' → '+et],['Duration',_bf.dur+'h'],['Subtotal','₹'+cost],['GST (18%)','₹'+gst]].map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px"><span style="color:var(--muted)">'+k+'</span><span style="font-weight:600">'+v+'</span></div>').join('')
+  +'<div style="display:flex;justify-content:space-between;padding-top:14px;font-weight:700"><span style="font-size:13px;color:var(--muted)">Grand Total</span><span style="font-family:\'DM Mono\',monospace;color:var(--amber);font-size:18px">₹'+total+'</span></div></div>'
+  +'<div class="card cg"><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px">Payment Method</div><div style="display:flex;gap:8px;margin-bottom:20px">'+['Card','UPI','Wallet'].map(m=>'<button class="pt'+(_bpy===m?' act':'')+'" onclick="PS.setPy(\''+m+'\')">'+{Card:'💳',UPI:'📱',Wallet:'💰'}[m]+' '+m+'</button>').join('')+'</div><div id="pf">'+pyFlds(cost,total)+'</div>'
+  +'<div style="display:flex;gap:10px;margin-top:20px"><button class="btn bg" onclick="PS.bkB()">← Back</button><button class="btn bgreen" id="pbtn" style="flex:1;padding:12px;font-size:15px" onclick="PS.doPy()">⚡ Pay ₹'+total+'</button></div></div></div>'
+  +'<div class="card cg" style="align-self:start"><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Slot Preview</div><div style="text-align:center;padding:16px 0"><div style="display:inline-flex;width:72px;height:58px;border-radius:12px;background:rgba(108,99,255,.18);border:2px solid var(--accent);align-items:center;justify-content:center;flex-direction:column;box-shadow:0 0 24px rgba(108,99,255,.3)"><div style="font-size:14px;font-weight:700;color:var(--accent2);font-family:\'DM Mono\',monospace">'+_bsl?.number+'</div><div style="font-size:10px;color:var(--muted)">'+(_bsl?.floor==='G'?'GF':'F'+_bsl?.floor)+'</div></div><div style="margin-top:10px;font-size:12px;font-weight:600;color:var(--text)">'+(_bloc?.name||'')+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Zone '+_bsl?.zone+' · ₹'+_bsl?.rate+'/hr</div></div></div></div>';}
+function pyFlds(cost,total){
+  if(_bpy==='Card')return '<div class="f"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="f"><label>Expiry</label><input type="text" placeholder="MM/YY"></div><div class="f"><label>CVV</label><input type="password" placeholder="•••" maxlength="3"></div></div>';
+  if(_bpy==='UPI')return '<div class="f"><label>UPI ID</label><input type="text" placeholder="yourname@upi"></div>';
+  return '<div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;text-align:center"><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Wallet Balance</div><div style="font-size:28px;color:#22c55e;font-family:\'DM Mono\',monospace;font-weight:700">₹'+SES.wallet+'</div>'+(SES.wallet<total?'<div style="color:#ef4444;font-size:12px;margin-top:8px">Insufficient (need ₹'+total+')</div>':'<div style="color:var(--muted);font-size:12px;margin-top:6px">After: ₹'+(SES.wallet-total)+'</div>')+'</div>';}
+
+function tkPage(done){
+  const {bk,sl}=done,locName=_bloc?.name||sl.locName||'',qd='PARKSMART|'+bk.id+'|'+SES.name+'|'+sl.number+'|'+locName+'|'+bk.date+'|'+bk.start+'-'+bk.end+'|₹'+bk.amount;
+  return '<div class="page" style="max-width:600px;margin:0 auto"><div style="text-align:center;margin-bottom:40px;animation:pop .6s cubic-bezier(.34,1.56,.64,1)"><div style="width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid #22c55e;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;box-shadow:0 0 40px rgba(34,197,94,.3)">✓</div><div style="font-size:26px;font-weight:700;color:#22c55e;letter-spacing:-.5px">Payment Successful!</div><div style="color:var(--muted);font-size:15px;margin-top:8px">Your parking slot is reserved.</div></div>'
+  +'<div class="tk"><div class="tkh"><div><div style="font-size:22px;font-weight:700;color:var(--accent2);letter-spacing:-.5px">ParkSmart</div><div style="font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:2px;text-transform:uppercase">Digital Parking Ticket</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Booking ID</div><div style="font-family:\'DM Mono\',monospace;font-size:18px;color:var(--amber);font-weight:700">#'+bk.id+'</div></div></div>'
+  +'<div class="tkb" style="display:flex;gap:20px;align-items:flex-start"><div style="flex:1">'+[['LOCATION',locName],['DRIVER',SES.name],['VEHICLE',bk.vehicle||SES.vehicle],['SLOT',sl.number+' — Zone '+sl.zone+' · '+(sl.floor==='G'?'Ground':'Floor '+sl.floor)],['DATE',bk.date],['ENTRY',bk.start],['EXIT',bk.end],['DURATION',bk.duration+'h'],['PAID VIA',bk.method]].map(([k,v])=>'<div class="tkr"><span class="tklb">'+k+'</span><span class="tkv">'+v+'</span></div>').join('')
+  +'<div style="display:flex;justify-content:space-between;padding-top:14px"><span style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;align-self:center">Amount Paid</span><span style="font-family:\'DM Mono\',monospace;font-size:26px;color:var(--amber);font-weight:700">₹'+bk.amount+'</span></div></div>'
+  +'<div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div class="qrw">'+qr(qd,108)+'</div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-align:center;text-transform:uppercase">Scan at Entry</div></div></div>'
+  +'<div class="tkp">'+Array.from({length:12},()=>'<div class="pd"></div>').join('')+'</div>'
+  +'<div style="padding:0 24px 18px;text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 1.5s ease-in-out infinite"></div><span style="font-size:11px;color:#22c55e;letter-spacing:2px;text-transform:uppercase">Valid for Single Entry</span></div></div></div>'
+  +'<div style="display:flex;gap:12px;margin-top:24px"><button class="btn bg" style="flex:1;padding:12px" onclick="window.print()">⬇ Download Ticket</button><button class="btn bp" style="flex:1;padding:12px" onclick="PS.done()">⊞ Go to Dashboard</button></div></div>';}
+
+// EVENTS
+let _es=null,_eseat=1,_epy='Card',_etk=null;
+function pgEv(){
+  if(_etk)return evTk(_etk);if(_es)return evDet(_es);
+  return '<div class="page"><div style="margin-bottom:24px"><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Hyderabad</div><h2 style="font-size:24px;font-weight:700;letter-spacing:-.5px">Upcoming Events</h2></div>'
+  +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">'
+  +EVS.map(ev=>{const fp=Math.round(ev.booked/ev.total*100),av=ev.total-ev.booked;
+    return '<div class="card ecc" onclick="PS.evO(\''+ev.id+'\')"><div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px"><div style="width:50px;height:50px;border-radius:14px;background:'+ev.col+'18;border:1px solid '+ev.col+'30;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">'+ev.emoji+'</div><div style="flex:1"><div style="display:flex;gap:6px;margin-bottom:6px"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:'+ev.col+'18;color:'+ev.col+';border:1px solid '+ev.col+'30">'+ev.cat.toUpperCase()+'</span>'+(fp>90?'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25)">ALMOST FULL</span>':'')+'</div><div style="font-size:14px;font-weight:700">'+ev.title+'</div></div></div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:8px">📍 '+ev.venue+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">📅 '+ev.date+' &nbsp; 🕐 '+ev.time+'</div>'
+    +'<div style="margin-bottom:14px"><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.06)"><div style="height:100%;width:'+fp+'%;border-radius:3px;background:linear-gradient(90deg,'+ev.col+','+ev.col+'88)"></div></div><div style="font-size:11px;color:var(--muted);margin-top:5px">'+av.toLocaleString()+' seats left</div></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center"><div>'+(ev.orig>ev.price?'<span style="text-decoration:line-through;color:var(--muted);font-size:12px;margin-right:6px">₹'+ev.orig+'</span>':'')+'<span style="font-size:17px;font-weight:700;color:'+(ev.price===0?'#22c55e':'var(--amber)')+'">'+( ev.price===0?'FREE':'₹'+ev.price)+'</span></div><div style="color:#f59e0b;font-size:13px;font-weight:700">⭐ '+ev.rating+'</div></div></div>';}).join('')+'</div></div>';}
+
+function evDet(ev){
+  const tot=ev.price*_eseat,fp=Math.round(ev.booked/ev.total*100);
+  return '<div class="page"><button class="btn bg" style="margin-bottom:24px;font-size:12px" onclick="PS.evBk()">← Back to Events</button><div style="display:grid;grid-template-columns:1fr 300px;gap:20px">'
+  +'<div class="card cg"><div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:18px"><span style="font-size:48px">'+ev.emoji+'</span><div><span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:'+ev.col+'18;color:'+ev.col+';border:1px solid '+ev.col+'30">'+ev.cat.toUpperCase()+'</span><h2 style="font-size:20px;font-weight:700;margin-top:8px;margin-bottom:6px">'+ev.title+'</h2><div style="font-size:13px;color:var(--muted)">📍 '+ev.venue+' · '+ev.area+'</div><div style="font-size:13px;color:var(--muted);margin-top:4px">📅 '+ev.date+' 🕐 '+ev.time+'</div></div></div>'
+  +'<div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span style="color:var(--muted)">Seats filling fast</span><span style="font-weight:700;color:#ef4444">'+ev.booked.toLocaleString()+' / '+ev.total.toLocaleString()+' booked</span></div><div style="height:8px;border-radius:4px;background:rgba(255,255,255,.06)"><div style="height:100%;width:'+fp+'%;border-radius:4px;background:linear-gradient(90deg,'+ev.col+','+ev.col+'88)"></div></div></div>'
+  +'<div style="margin-bottom:18px"><div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Select Seats</div><div style="display:flex;gap:8px">'+[1,2,3,4,5,6].map(n=>'<button onclick="PS.evS('+n+')" style="width:42px;height:42px;border-radius:10px;font-size:14px;font-weight:700;background:'+(_eseat===n?ev.col:'rgba(0,0,0,.3)')+';border:1.5px solid '+(_eseat===n?ev.col:'rgba(255,255,255,.1)')+';color:'+(_eseat===n?'#07090f':'var(--muted)')+';cursor:pointer;transition:all .2s;font-family:\'Space Grotesk\',sans-serif">'+n+'</button>').join('')+'</div></div>'
+  +'<div><div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Payment</div><div style="display:flex;gap:8px">'+['Card','UPI','Wallet'].map(m=>'<button onclick="PS.evPm(\''+m+'\')" class="pt'+(_epy===m?' act':'')+'">'+{Card:'💳',UPI:'📱',Wallet:'💰'}[m]+' '+m+'</button>').join('')+'</div></div></div>'
+  +'<div class="card cg"><div style="font-size:12px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Summary</div>'+[['Event',ev.title.substring(0,22)],['Date',ev.date],['Time',ev.time],['Seats',_eseat],['Method',_epy]].map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px"><span style="color:var(--muted)">'+k+'</span><span style="font-weight:600">'+v+'</span></div>').join('')
+  +'<div style="display:flex;justify-content:space-between;padding-top:14px"><span style="font-size:13px;color:var(--muted)">Total</span><span style="font-family:\'DM Mono\',monospace;font-size:22px;color:'+(ev.price===0?'#22c55e':'var(--amber)')+';font-weight:700">'+(ev.price===0?'FREE':'₹'+tot)+'</span></div>'
+  +'<button class="btn bp" style="width:100%;margin-top:18px;padding:13px;font-size:15px" onclick="PS.evP()" id="epb">'+(ev.price===0?'⚡ Book Free':'⚡ Pay ₹'+tot)+'</button></div></div></div>';}
+
+function evTk(tk){
+  return '<div class="page" style="max-width:520px;margin:0 auto"><div style="text-align:center;margin-bottom:32px;animation:pop .6s cubic-bezier(.34,1.56,.64,1)"><div style="width:72px;height:72px;border-radius:50%;background:'+tk.col+'18;border:2px solid '+tk.col+';display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;box-shadow:0 0 32px '+tk.col+'40">✓</div><div style="font-size:22px;font-weight:700;color:'+tk.col+'">Booking Confirmed!</div></div>'
+  +'<div class="tk" style="border-color:'+tk.col+'40"><div class="tkh" style="background:linear-gradient(135deg,'+tk.col+'15,'+tk.col+'05);border-bottom:2px dashed '+tk.col+'30"><div style="font-size:18px;font-weight:700;color:var(--accent2)">ParkSmart</div><div style="text-align:right"><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Booking ID</div><div style="font-family:\'DM Mono\',monospace;font-size:16px;color:'+tk.col+';font-weight:700">'+tk.id+'</div></div></div>'
+  +'<div class="tkb"><div style="text-align:center;margin-bottom:18px"><div style="font-size:44px">'+tk.emoji+'</div><div style="font-size:15px;font-weight:700;margin-top:8px">'+tk.eventTitle+'</div></div>'
+  +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'+[['VENUE',tk.venue.substring(0,18)],['DATE',tk.date],['TIME',tk.time],['SEATS',tk.seats],['METHOD',tk.method]].map(([k,v])=>'<div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">'+k+'</div><div style="font-size:13px;font-weight:700;margin-top:2px">'+v+'</div></div>').join('')
+  +'<div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">TOTAL</div><div style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:700;color:'+tk.col+';margin-top:2px">'+(tk.amount===0?'FREE':'₹'+tk.amount)+'</div></div></div>'
+  +'<div style="border-top:2px dashed '+tk.col+'25;padding-top:16px;display:flex;justify-content:center"><div class="qrw">'+qr(tk.id+tk.eventId,100)+'</div></div>'
+  +'<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Show QR at Venue</div></div></div>'
+  +'<div style="display:flex;gap:12px;margin-top:20px"><button class="btn bg" style="flex:1;padding:11px" onclick="window.print()">⬇ Download</button><button class="btn bp" style="flex:1;padding:11px" onclick="PS.evBk()">← Back to Events</button></div></div>';}
+
+// MY BOOKINGS
+let _tkM=null,_cnM=null;
+function pgBks(){
+  const ub=DB.bookings.filter(b=>b.userId===SES.id).reverse(),eb=(DB.eventBookings||[]).filter(b=>b.userId===SES.id).reverse();
+  return '<div class="page"><div style="margin-bottom:24px"><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Records</div><h2 style="font-size:24px;font-weight:700;letter-spacing:-.5px">My Bookings</h2></div>'
+  +'<div style="font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:14px">🅿 Parking Slots ('+ub.length+')</div>'
+  +(ub.length===0?'<div class="card" style="text-align:center;padding:40px;margin-bottom:24px"><div style="font-size:40px;opacity:.2;margin-bottom:10px">🅿</div><div style="color:var(--muted)">No parking bookings yet</div></div>'
+  :'<div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px">'+ub.map(b=>{const sl=DB.slots.find(s=>s.id===b.slotId);const sNum=sl?.number||b.slotNum||'?';const sZone=sl?.zone||b.slotZone||'?';const loc=b.location||'';const sc=b.status==='Active'?'bg2':b.status==='Cancelled'?'br':'bpu',ia=b.status==='Active';
+    return '<div class="card" style="border-color:'+(ia?'rgba(34,197,94,.18)':'rgba(108,99,255,.1)')+'"><div style="height:2px;background:'+(ia?'#22c55e':b.status==='Cancelled'?'#ef4444':'#6c63ff')+';opacity:.5;margin:-20px -20px 16px;border-radius:16px 16px 0 0"></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:\'DM Mono\',monospace;font-size:14px;color:var(--accent2);font-weight:700">#'+b.id+'</span><span class="bdg '+sc+'">'+b.status.toUpperCase()+'</span></div>'
+    +(loc?'<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">📍 '+loc+'</div>':'')
+    +'<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">'+[['SLOT',sNum+' · Zone '+sZone],['DATE',b.date],...(b.status!=='Completed'?[['TIME',b.start+' → '+b.end]]:[]),(b.status!=='Completed'?['DUR',b.duration+'h']:['DUR',b.duration+'h']),['PAID','₹'+b.amount],['METHOD',b.method]].map(([k,v])=>'<div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">'+k+'</div><div style="font-size:13px;font-weight:600">'+v+'</div></div>').join('')+'</div>'
+    +'<div style="display:flex;gap:10px;border-top:1px solid rgba(108,99,255,.07);padding-top:12px"><button class="btn bteal" style="padding:8px 16px;font-size:11px" onclick="PS.vTk(\''+b.id+'\')">🎫 View Ticket</button>'+(ia?'<button class="btn bd" style="padding:8px 16px;font-size:11px" onclick="PS.cnB(\''+b.id+'\')">✕ Cancel</button>':'')+'</div></div>';}).join('')+'</div>')
+  +'<div style="font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:14px">🎟 Event Tickets ('+eb.length+')</div>'
+  +(eb.length===0?'<div class="card" style="text-align:center;padding:40px"><div style="font-size:40px;opacity:.2;margin-bottom:10px">🎟</div><div style="color:var(--muted)">No event bookings yet</div></div>'
+  :'<div style="display:flex;flex-direction:column;gap:14px">'+eb.map(b=>'<div class="card" style="border-color:'+b.col+'25"><div style="display:flex;gap:14px;align-items:center"><div style="width:48px;height:48px;border-radius:14px;background:'+b.col+'18;border:1px solid '+b.col+'30;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+b.emoji+'</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+b.eventTitle+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+b.date+' · '+b.time+' · '+b.seats+' seat'+(b.seats>1?'s':'')+'</div></div><div style="text-align:right"><div style="font-family:\'DM Mono\',monospace;color:var(--amber);font-weight:700;font-size:15px">'+(b.amount===0?'FREE':'₹'+b.amount)+'</div><span class="bdg bg2" style="margin-top:4px">CONFIRMED</span></div></div></div>').join('')+'</div>')
+  +(_tkM?tkModal(_tkM):'')
+  +(_cnM?cnModal(_cnM):'')+'</div>';}
+
+function tkModal(d){
+  const {bk,sl}=d,qd='PARKSMART|'+bk.id+'|'+SES.name+'|'+sl?.number+'|'+bk.date+'|'+bk.start+'-'+bk.end+'|₹'+bk.amount;
+  return '<div class="mo" onclick="PS.cTk()"><div class="mb" onclick="event.stopPropagation()" style="max-width:480px"><div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;font-weight:700;color:var(--accent2)">Parking Ticket</div><button onclick="PS.cTk()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button></div>'
+  +'<div style="padding:20px 24px"><div class="tk"><div class="tkh"><div><div style="font-size:18px;font-weight:700;color:var(--accent2)">ParkSmart</div></div><div style="text-align:right"><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">ID</div><div style="font-family:\'DM Mono\',monospace;font-size:16px;color:var(--amber);font-weight:700">#'+bk.id+'</div></div></div>'
+  +'<div class="tkb" style="display:flex;gap:16px"><div style="flex:1">'+[['DRIVER',SES.name],['VEHICLE',bk.vehicle||SES.vehicle],['SLOT',(sl?.number||'?')+' · Zone '+(sl?.zone||'?')],['DATE',bk.date],['TIME',bk.start+' → '+bk.end],['PAID','₹'+bk.amount+' via '+bk.method]].map(([k,v])=>'<div class="tkr"><span class="tklb">'+k+'</span><span class="tkv" style="font-size:12px">'+v+'</span></div>').join('')+'</div>'
+  +'<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="qrw">'+qr(qd,88)+'</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-align:center;text-transform:uppercase">Scan at Gate</div></div></div>'
+  +'<div class="tkp" style="padding:10px 0">'+Array.from({length:10},()=>'<div class="pd"></div>').join('')+'</div>'
+  +'<div style="padding:0 24px 14px;text-align:center"><span style="font-size:10px;color:#22c55e;letter-spacing:2px;text-transform:uppercase">✓ Valid for Single Entry</span></div></div>'
+  +'<button class="btn bg" style="width:100%;margin-top:14px;padding:11px;font-size:13px" onclick="PS.cTk()">Close</button></div></div></div>';}
+
+function cnModal(d){
+  const {bk,sl}=d,rf=Math.round(bk.amount*.8);
+  return '<div class="mo" onclick="PS.cCn()"><div class="mb" onclick="event.stopPropagation()" style="max-width:420px"><div style="background:rgba(239,68,68,.08);border-bottom:1px solid rgba(239,68,68,.2);padding:18px 22px;display:flex;gap:12px;align-items:center"><div style="font-size:24px">⚠️</div><div><div style="font-size:14px;font-weight:700;color:#ef4444">Cancel Booking</div><div style="font-size:12px;color:var(--muted);margin-top:2px">This cannot be undone</div></div></div>'
+  +'<div style="padding:18px 22px">'+[['BOOKING ID','#'+bk.id],['SLOT',(sl?.number||'?')+' · Zone '+(sl?.zone||'?')],['DATE',bk.date],['TIME',bk.start+' → '+bk.end],['AMOUNT PAID','₹'+bk.amount]].map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px"><span style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;align-self:center">'+k+'</span><span style="font-weight:600">'+v+'</span></div>').join('')
+  +'<div style="margin-top:14px;padding:14px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:12px"><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Refund Breakdown</div>'
+  +'<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--muted)">Cancellation fee (20%)</span><span style="color:#ef4444">−₹'+Math.round(bk.amount*.2)+'</span></div>'
+  +'<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span>Wallet Refund</span><span style="color:#22c55e">+₹'+rf+'</span></div></div>'
+  +'<div style="display:flex;gap:10px;margin-top:18px"><button class="btn bg" style="flex:1" onclick="PS.cCn()">Keep Booking</button><button class="btn bd" style="flex:1" onclick="PS.doCn()">✕ Cancel & Refund</button></div></div></div></div>';}
+
+// PROFILE
+function pgProf(){
+  const ini=SES.name.split(' ').map(w=>w[0]).join('').slice(0,2),ub=DB.bookings.filter(b=>b.userId===SES.id),sp=ub.reduce((s,b)=>s+b.amount,0);
+  return '<div class="page" style="max-width:700px"><div style="margin-bottom:28px"><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Account</div><h2 style="font-size:24px;font-weight:700;letter-spacing:-.5px">My Profile</h2></div>'
+  +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><div class="card cg" style="margin-bottom:16px"><div style="display:flex;gap:16px;align-items:center;margin-bottom:20px"><div class="avlg">'+ini+'</div><div><div style="font-size:18px;font-weight:700">'+SES.name+'</div><div style="font-size:13px;color:var(--muted);margin-top:3px">'+SES.email+'</div><span class="bdg bpu" style="margin-top:6px">Premium Member</span></div></div>'
+  +[['Vehicle No.',SES.vehicle],['User ID',SES.id],['Joined','March 2026']].map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px"><span style="color:var(--muted)">'+k+'</span><span style="font-weight:600;font-family:\'DM Mono\',monospace">'+v+'</span></div>').join('')+'</div>'
+  +'<div class="card" style="background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(108,99,255,.06))"><div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Wallet Balance</div><div style="font-family:\'DM Mono\',monospace;font-size:36px;font-weight:700;color:var(--amber)">₹'+SES.wallet+'</div><div style="font-size:12px;color:var(--muted);margin-top:6px">Available for payments</div></div></div>'
+  +'<div><div class="card" style="margin-bottom:16px"><div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Parking Stats</div>'+[['Total Bookings',ub.length,'#6c63ff'],['Active Slots',ub.filter(b=>b.status==='Active').length,'#22c55e'],['Completed',ub.filter(b=>b.status==='Completed').length,'#a78bfa'],['Cancelled',ub.filter(b=>b.status==='Cancelled').length,'#ef4444'],['Total Spent','₹'+sp,'#f59e0b']].map(([l,v,c])=>'<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(108,99,255,.07);font-size:13px"><span style="color:var(--muted)">'+l+'</span><span style="font-weight:700;color:'+c+';font-family:\'DM Mono\',monospace">'+v+'</span></div>').join('')+'</div>'
+  +'<div class="card"><div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Quick Actions</div><div style="display:flex;flex-direction:column;gap:10px"><button class="btn bp" style="width:100%;text-align:left;padding:12px 16px" onclick="sp(\'locations\')">📍 Browse & Book Parking</button><button class="btn bg" style="width:100%;text-align:left;padding:12px 16px" onclick="sp(\'events\')">🎟 Explore Events</button><button class="btn bg" style="width:100%;text-align:left;padding:12px 16px" onclick="sp(\'bookings\')">📋 My Bookings</button><button class="btn bd" style="width:100%;text-align:left;padding:12px 16px" onclick="logout()">⎋ Sign Out</button></div></div></div></div></div>';}
+
+// DB VIEWER
+let _dbt='users';
+function pgDB(){
+  const tbs={users:{data:DB.users,col:'#6c63ff',ic:'👤'},slots:{data:DB.slots,col:'#22c55e',ic:'🅿'},bookings:{data:DB.bookings,col:'#f59e0b',ic:'📋'},events:{data:DB.eventBookings||[],col:'#a78bfa',ic:'🎟'}};
+  const cfg=tbs[_dbt],cols=cfg.data.length>0?Object.keys(cfg.data[0]):[];
+  return '<div class="page"><div style="margin-bottom:24px"><div style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Admin</div><h2 style="font-size:24px;font-weight:700;letter-spacing:-.5px">Database Viewer</h2></div>'
+  +'<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'+Object.entries(tbs).map(([k,v])=>'<button class="dbt'+(k===_dbt?' act':'')+'" onclick="PS.dbt(\''+k+'\')">'+v.ic+' '+k.toUpperCase()+' <span style="opacity:.6;font-size:10px">('+v.data.length+')</span></button>').join('')+'</div>'
+  +'<div class="card" style="overflow:hidden;padding:0"><div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:700;color:'+cfg.col+';letter-spacing:2px;text-transform:uppercase">'+_dbt.toUpperCase()+' · '+cfg.data.length+' RECORDS</span><span class="bdg br">READ-ONLY</span></div>'
+  +'<div style="overflow-x:auto">'+(cfg.data.length===0?'<div style="padding:40px;text-align:center;color:var(--muted);font-family:\'DM Mono\',monospace;letter-spacing:2px;font-size:12px">EMPTY TABLE</div>'
+  :'<table class="dbtbl"><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+cfg.data.map(r=>'<tr>'+cols.map(c=>'<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:\'DM Mono\',monospace;font-size:11px;color:'+(typeof r[c]==='number'?'var(--amber)':typeof r[c]==='boolean'?r[c]?'#22c55e':'#ef4444':'var(--text)')+'">'+( r[c]===null||r[c]===undefined?'<span style="color:var(--muted)">null</span>':typeof r[c]==='object'?'<span style="color:var(--teal)">'+JSON.stringify(r[c]).substring(0,40)+'</span>':String(r[c]))+'</td>').join('')+'</tr>').join('')+'</tbody></table>')
+  +'</div><div style="padding:10px 18px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:\'DM Mono\',monospace">localStorage · Admin only · READ-ONLY</div></div></div>';}
+
+// PS NAMESPACE
+const PS={
+  stab(t){document.getElementById('fl').style.display=t==='l'?'block':'none';document.getElementById('fr').style.display=t==='r'?'block':'none';const aS='background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(108,99,255,.08));border:1px solid rgba(108,99,255,.35);color:var(--accent2)';const iS='background:transparent;border:1px solid transparent;color:var(--muted)';document.getElementById('tl').style.cssText=(t==='l'?aS:iS)+';flex:1;padding:9px;border-radius:7px;font-size:12px;letter-spacing:1px';document.getElementById('tr').style.cssText=(t==='r'?aS:iS)+';flex:1;padding:9px;border-radius:7px;font-size:12px;letter-spacing:1px';document.getElementById('ae').innerHTML='';},
+  login(){const em=document.getElementById('le').value,pw=document.getElementById('lp').value,u=DB.users.find(x=>x.email===em&&x.password===pw);if(!u){document.getElementById('ae').innerHTML='<div class="emsg">⚠ Invalid email or password</div>';return;}login(u);},
+  register(){const nm=document.getElementById('rn').value,em=document.getElementById('re').value,pw=document.getElementById('rp').value,vh=document.getElementById('rv').value,err=document.getElementById('ae');if(!nm||!em||!pw){err.innerHTML='<div class="emsg">⚠ Fill all fields</div>';return;}if(pw.length<6){err.innerHTML='<div class="emsg">⚠ Password min 6 chars</div>';return;}if(DB.users.find(u=>u.email===em)){err.innerHTML='<div class="emsg">⚠ Email already registered</div>';return;}const nu={id:'u'+Date.now(),name:nm,email:em,password:pw,vehicle:vh||'—',wallet:200};dbU(d=>({...d,users:[...d.users,nu]}));login(DB.users.find(u=>u.email===em));},
+  bLoc(id){_bloc=LOCS.find(l=>l.id===id);_blocSlots=locSlots(_bloc);_bsl=null;_bs=1;_bdone=null;_bf={date:new Date().toISOString().split('T')[0],st:'10:00',dur:2,veh:SES.vehicle};sp('book');},
+  bkCancel(){_bloc=null;_blocSlots=[];_bsl=null;_bs=1;_bdone=null;sp('locations');},
+  ss(id){const sl=_blocSlots.find(s=>s.id===id)||DB.slots.find(s=>s.id===id);if(!sl||sl.occupied)return;_bsl=sl;const sg=document.getElementById('sga');if(sg)sg.innerHTML=slotGrid(true,id,_blocSlots);const sd=document.getElementById('sdt');if(sd)sd.innerHTML=sdHTML(sl);},
+  bkN(){if(!_bsl)return;_bs=2;document.getElementById('bb').innerHTML=bkSt();},
+  bkN2(){_bf.veh=document.getElementById('bv')?.value||_bf.veh;_bf.date=document.getElementById('bd')?.value||_bf.date;_bf.st=document.getElementById('bst')?.value||_bf.st;_bf.dur=parseInt(document.getElementById('bdu')?.value)||_bf.dur;_bs=3;document.getElementById('bb').innerHTML=bkSt();},
+  bkB(){_bs=Math.max(1,_bs-1);document.getElementById('bb').innerHTML=bkSt();},
+  setPy(m){_bpy=m;const cost=(_bsl?.rate||0)*_bf.dur,total=cost+Math.round(cost*.18);document.getElementById('pf').innerHTML=pyFlds(cost,total);document.querySelectorAll('.pt').forEach(b=>b.classList.toggle('act',b.textContent.includes(m)));},
+  doPy(){const cost=(_bsl?.rate||0)*_bf.dur,total=cost+Math.round(cost*.18);if(_bpy==='Wallet'&&SES.wallet<total)return;const btn=document.getElementById('pbtn');if(btn){btn.disabled=true;btn.innerHTML='<span class="spin-anim">⟳</span> Processing...';}setTimeout(()=>{const id='BK'+Math.random().toString(36).substr(2,6).toUpperCase();const eh=parseInt(_bf.st)+_bf.dur,et=String(eh).padStart(2,'0')+':00';const nb={id,userId:SES.id,slotId:_bsl.id,location:_bloc?.name||'',date:_bf.date,start:_bf.st,end:et,duration:_bf.dur,amount:total,method:_bpy,status:'Active',createdAt:new Date().toISOString(),vehicle:_bf.veh,slotNum:_bsl.number,slotZone:_bsl.zone,slotFloor:_bsl.floor};dbU(d=>({...d,bookings:[...d.bookings,nb],users:d.users.map(u=>u.id===SES.id&&_bpy==='Wallet'?{...u,wallet:u.wallet-total}:u)}));_bdone={bk:nb,sl:_bsl};_bs=1;_bsl=null;document.getElementById('ma').innerHTML=rPage();},2200);},
+  done(){_bdone=null;_bloc=null;_blocSlots=[];_bf={date:new Date().toISOString().split('T')[0],st:'10:00',dur:2,veh:SES.vehicle};sp('dashboard');},
+  evO(id){_es=EVS.find(e=>e.id===id);_eseat=1;_epy='Card';document.getElementById('ma').innerHTML=rPage();},
+  evBk(){_es=null;_etk=null;document.getElementById('ma').innerHTML=rPage();},
+  evS(n){_eseat=n;document.getElementById('ma').innerHTML=rPage();},
+  evPm(m){_epy=m;document.getElementById('ma').innerHTML=rPage();},
+  evP(){const btn=document.getElementById('epb');if(btn){btn.disabled=true;btn.textContent='⟳ Processing...';}setTimeout(()=>{const id='EV'+Math.random().toString(36).substr(2,6).toUpperCase();const bk={id,userId:SES.id,eventId:_es.id,eventTitle:_es.title,venue:_es.venue,area:_es.area,date:_es.date,time:_es.time,seats:_eseat,amount:_es.price*_eseat,method:_epy,status:'Confirmed',createdAt:new Date().toISOString(),emoji:_es.emoji,col:_es.col};dbU(d=>({...d,eventBookings:[...(d.eventBookings||[]),bk]}));_etk=bk;document.getElementById('ma').innerHTML=rPage();},1800);},
+  vTk(bid){const b=DB.bookings.find(x=>x.id===bid);const sl=DB.slots.find(s=>s.id===b?.slotId)||{number:b?.slotNum||'?',zone:b?.slotZone||'?',floor:b?.slotFloor||'G'};_tkM={bk:b,sl};document.getElementById('ma').innerHTML=rPage();},
+  cTk(){_tkM=null;document.getElementById('ma').innerHTML=rPage();},
+  cnB(bid){const b=DB.bookings.find(x=>x.id===bid);const sl=DB.slots.find(s=>s.id===b?.slotId)||{number:b?.slotNum||'?',zone:b?.slotZone||'?'};_cnM={bk:b,sl};document.getElementById('ma').innerHTML=rPage();},
+  cCn(){_cnM=null;document.getElementById('ma').innerHTML=rPage();},
+  doCn(){if(!_cnM)return;const {bk}=_cnM,rf=Math.round(bk.amount*.8);dbU(d=>({...d,bookings:d.bookings.map(b=>b.id===bk.id?{...b,status:'Cancelled'}:b),users:d.users.map(u=>u.id===SES.id?{...u,wallet:u.wallet+rf}:u)}));_cnM=null;},
+  dbt(t){_dbt=t;document.getElementById('ma').innerHTML=rPage();},
+};
+
+render();
+</script>
+</body>
+</html>
